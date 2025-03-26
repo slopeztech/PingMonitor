@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 ## Configuration
 
-### Site Configuration
+### Configuración de Sitios
 
 Create configuration files in the `sites` directory for each site you want to monitor. Example (`sites/example.com.conf`):
 
