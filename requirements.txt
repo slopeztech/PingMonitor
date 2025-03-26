@@ -2,3 +2,4 @@ flake8         # Tool for style analysis
 requests       # For performing HTTP requests
 pythonping     # For pinging IP addresses
 peewee         # ORM for SQLite
+icmplib        # For ICMP ping functionality

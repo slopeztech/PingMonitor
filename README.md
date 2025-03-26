@@ -68,7 +68,7 @@ python main.py ping site_name
 
 ```
 PingMonitor/
-├── config/             # Configuration files
+├── config/            # Configuration files
 ├── data/              # Data storage
 │   ├── sqlite/        # SQLite databases
 │   └── plain/         # Plain text files

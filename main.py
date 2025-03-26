@@ -51,8 +51,57 @@ class PingMonitor:
                 print(f"{key}: {config[key]}")
 
     def ping_site(self, site: str) -> None:
-        # Determinar el parámetro de conteo según el sistema operativo
-        print("hola")
+        # Build the configuration file path
+        config_filename = f"{site}.conf"
+        config_path = os.path.join("sites", config_filename)
+
+        if not os.path.exists(config_path):
+            print(f"Configuration file '{config_path}' does not exist.")
+            return
+
+        config = {}
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    # Ignore empty lines and comments
+                    if not line or line.startswith("#"):
+                        continue
+                    if "=" in line:
+                        key, value = line.split("=", 1)
+                        config[key.strip()] = value.strip()
+        except Exception as e:
+            print(f"Error reading configuration file: {e}")
+            return
+
+        if "protocol" not in config:
+            print(f"Missing protocol in '{site}' configuration")
+            return
+
+        protocol = config["protocol"].lower()
+        
+        try:
+            # Dynamically import the protocol module
+            module_name = f"utils.{protocol}"
+            protocol_module = __import__(module_name, fromlist=[''])
+            
+            # Get the domain or IP of the site
+            domain = config.get("site", site)
+            
+            # Execute the ping using the specific protocol class
+            if protocol == "icmp":
+                # For ICMP, we use the ICMPPing class
+                pinger = protocol_module.ICMPPing(domain)
+                result = pinger.ping()
+            else:
+                # For other protocols, we try to use the generic ping function
+                result = protocol_module.ping(config)
+                
+            print(f"Ping result for {domain} using {protocol}: {result}")
+        except ImportError:
+            print(f"Could not import module for protocol '{protocol}'")
+        except Exception as e:
+            print(f"Error performing ping: {e}")
 
 
 def main():
