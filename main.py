@@ -97,30 +97,32 @@ class PingMonitor:
                 # For other protocols, we try to use the generic ping function
                 result = protocol_module.ping(config)
 
-            print(f"Ping result for {domain} using {protocol}: {result}")
+            # TODO: añadir modo verbose para mostrar el resultado del ping
+            # print(f"Ping result for {domain} using {protocol}: {result}")
             
-            # Si el método de almacenamiento es SQLite, guardar el resultado en la base de datos
+            # If storage method is SQLite, save the result to the database
             if config.get("storage", "").lower() == "sqlite":
                 try:
                     from data.models.db import PingMonitorDB
                     
-                    # Obtener la ruta del archivo de base de datos
+                    # Get the database file path
                     db_file = config.get("storage_file")
                     if not db_file:
-                        print("Error: No se especificó el archivo de base de datos SQLite en la configuración.")
+                        print("Error: SQLite database file not specified in configuration.")
                         return
                     
-                    # Inicializar la conexión a la base de datos y guardar el resultado
+                    # Initialize database connection and save the result
                     db = PingMonitorDB(db_file)
                     db.store_ping_result(site=domain, protocol=protocol, result=result)
-                    print(f"Resultado guardado en la base de datos SQLite: {db_file}")
+                    # print(f"Result saved to SQLite database: {db_file}")
                 except Exception as db_error:
-                    print(f"Error al guardar en la base de datos: {db_error}")
+                    print(f"Error saving to database: {db_error}")
                     
         except ImportError:
             print(f"Could not import module for protocol '{protocol}'")
         except Exception as e:
             print(f"Error performing ping: {e}")
+
 
 def main():
     monitor = PingMonitor()
