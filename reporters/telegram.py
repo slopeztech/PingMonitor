@@ -1,5 +1,5 @@
 import requests
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from datetime import datetime
 
 
@@ -54,9 +54,8 @@ class TelegramReporter:
         """
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         status = "✅ Success" if result.get('success') else "❌ Failed"
-        
         message = [
-            f"<b>Ping Monitor Alert</b>",
+            "<b>Ping Monitor Alert</b>",
             f"Time: {timestamp}",
             f"Site: {site}",
             f"Protocol: {protocol}",
@@ -107,11 +106,11 @@ class TelegramReporter:
 
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         message = [
-            f"<b>Ping Monitor Summary</b>",
+            "<b>Ping Monitor Summary</b>",
             f"Time: {timestamp}",
             f"Site: {site}",
             f"Protocol: {protocol}",
-            f"Recent Results:",
+            "Recent Results:",
             ""
         ]
 

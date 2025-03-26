@@ -97,27 +97,62 @@ class PingMonitor:
                 # For other protocols, we try to use the generic ping function
                 result = protocol_module.ping(config)
 
-            # TODO: añadir modo verbose para mostrar el resultado del ping
+            # TODO: add verbose mode to show ping results
             # print(f"Ping result for {domain} using {protocol}: {result}")
-            
-            # If storage method is SQLite, save the result to the database
             if config.get("storage", "").lower() == "sqlite":
                 try:
                     from data.models.db import PingMonitorDB
-                    
                     # Get the database file path
                     db_file = config.get("storage_file")
                     if not db_file:
                         print("Error: SQLite database file not specified in configuration.")
                         return
-                    
                     # Initialize database connection and save the result
                     db = PingMonitorDB(db_file)
                     db.store_ping_result(site=domain, protocol=protocol, result=result)
                     # print(f"Result saved to SQLite database: {db_file}")
+                    
+                    # Verificar si el ping falló y si hay reporteros configurados
+                    if result["success"]:
+                        print("hola 1")
+                        # Buscar sección de reportero en el archivo de configuración
+                        reporter_section = False
+                        reporter_config = {}
+                        
+                        # Leer el archivo de configuración para encontrar la sección de reporter
+                        config_path = os.path.join("sites", f"{site}.conf")
+                        try:
+                            with open(config_path, 'r', encoding='utf-8') as f:
+                                current_section = None
+                                for line in f:
+                                    line = line.strip()
+                                    if not line or line.startswith("#"):
+                                        continue
+                                    if line.startswith("[") and line.endswith("]"):
+                                        current_section = line[1:-1].lower()
+                                    elif current_section == "reporter" and "=" in line:
+                                        key, value = line.split("=", 1)
+                                        reporter_config[key.strip()] = value.strip()
+                                        reporter_section = True
+                            
+                            if reporter_section and "type" in reporter_config:
+                                reporter_type = reporter_config["type"].lower()
+                                
+                                # Enviar notificación según el tipo de reportero
+                                if reporter_type == "telegram":
+                                    try:
+                                        from reporters.telegram import TelegramReporter
+                                        bot_token = reporter_config["bot_token"]
+                                        chat_id = reporter_config["chat_id"]
+                                        reporter = TelegramReporter(bot_token, chat_id)
+                                        message = f"⚠️ Error de ping detectado para {domain} usando {protocol}. Detalles: {result.get('error_message', 'Error desconocido')}"
+                                        reporter._send_message(message)
+                                    except Exception as reporter_error:
+                                        print(f"Error al enviar notificación por Telegram: {reporter_error}")
+                        except Exception as config_error:
+                            print(f"Error al leer la configuración del reportero: {config_error}")
                 except Exception as db_error:
                     print(f"Error saving to database: {db_error}")
-                    
         except ImportError:
             print(f"Could not import module for protocol '{protocol}'")
         except Exception as e:
