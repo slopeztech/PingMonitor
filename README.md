@@ -11,7 +11,6 @@ A Python-based monitoring tool that checks the availability of websites and serv
 - Configurable timeout and retry settings
 - SQLite database storage for historical data
 - Telegram notifications for failed pings
-- Hostname context in reports and database
 - Easy configuration through INI files
 
 ## Installation
