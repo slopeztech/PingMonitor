@@ -66,6 +66,26 @@ If not specified, the system hostname will be used.
 
 ## Usage
 
+### Database Management
+
+Create the database and tables:
+```bash
+python main.py runscript database/create
+```
+### Sites Management
+
+Create the site config:
+```bash
+python main.py runscript site/create
+```
+
+### Reporters Management
+
+Create the reporter config:
+```bash
+python main.py runscript reporter/create
+```
+
 ### Command Line Interface
 
 1. Check a site configuration:
@@ -76,25 +96,6 @@ python main.py check example.com
 2. Ping a site:
 ```bash
 python main.py ping example.com
-```
-
-3. Run a script:
-```bash
-python main.py runscript database/create
-```
-
-### Database Management
-
-Create the database and tables:
-```bash
-python main.py runscript database/create
-```
-
-### Sites Management
-
-Create the site config:
-```bash
-python main.py runscript site/create
 ```
 
 
