@@ -90,10 +90,13 @@ Create the database and tables:
 python main.py runscript database/create
 ```
 
-View ping history:
+### Sites Management
+
+Create the site config:
 ```bash
-python main.py runscript database/view
+python main.py runscript site/create
 ```
+
 
 ## Reporters
 
