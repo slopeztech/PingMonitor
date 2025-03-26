@@ -39,19 +39,18 @@ pip install -r requirements.txt
 Create configuration files in the `sites` directory for each site you want to monitor. Example (`sites/example.com.conf`):
 
 ```ini
-[site]
-site = example.com
+[SiteConfig]
+site = test.es
 protocol = icmp
-timeout = 5
+storage = sqlite
+storage_file = C:\Users\username\PingMonitor\data\sqlite\test.es.sqlite
 
-[storage]
-type = sqlite
-file = ping_monitor.db
 
 [reporter]
 type = telegram
-bot_token = your_bot_token
-chat_id = your_chat_id
+bot_token = xxx
+chat_id = xxx
+
 ```
 
 ### Global Configuration
