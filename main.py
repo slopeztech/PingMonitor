@@ -136,7 +136,7 @@ class PingMonitor:
                     # print(f"Result saved to SQLite database: {db_file}")
                     
                     # Check if ping failed and if reporters are configured
-                    if result["success"]:
+                    if not result["success"]:
                         # Look for reporter section in configuration file
                         reporter_section = False
                         reporter_config = {}
