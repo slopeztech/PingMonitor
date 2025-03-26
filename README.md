@@ -36,7 +36,7 @@ pip install -r requirements.txt
 
 ### Configuración de Sitios
 
-Create configuration files in the `sites` directory for each site you want to monitor. Example (`sites/example.com.conf`):
+Create configuration files in the `sites` directory for each site you want to monitor. Example (`sites/test.es.conf`):
 
 ```ini
 [SiteConfig]
