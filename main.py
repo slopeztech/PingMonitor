@@ -79,15 +79,15 @@ class PingMonitor:
             return
 
         protocol = config["protocol"].lower()
-        
+
         try:
             # Dynamically import the protocol module
             module_name = f"utils.{protocol}"
             protocol_module = __import__(module_name, fromlist=[''])
-            
+
             # Get the domain or IP of the site
             domain = config.get("site", site)
-            
+
             # Execute the ping using the specific protocol class
             if protocol == "icmp":
                 # For ICMP, we use the ICMPPing class
@@ -96,13 +96,31 @@ class PingMonitor:
             else:
                 # For other protocols, we try to use the generic ping function
                 result = protocol_module.ping(config)
-                
+
             print(f"Ping result for {domain} using {protocol}: {result}")
+            
+            # Si el método de almacenamiento es SQLite, guardar el resultado en la base de datos
+            if config.get("storage", "").lower() == "sqlite":
+                try:
+                    from data.models.db import PingMonitorDB
+                    
+                    # Obtener la ruta del archivo de base de datos
+                    db_file = config.get("storage_file")
+                    if not db_file:
+                        print("Error: No se especificó el archivo de base de datos SQLite en la configuración.")
+                        return
+                    
+                    # Inicializar la conexión a la base de datos y guardar el resultado
+                    db = PingMonitorDB(db_file)
+                    db.store_ping_result(site=domain, protocol=protocol, result=result)
+                    print(f"Resultado guardado en la base de datos SQLite: {db_file}")
+                except Exception as db_error:
+                    print(f"Error al guardar en la base de datos: {db_error}")
+                    
         except ImportError:
             print(f"Could not import module for protocol '{protocol}'")
         except Exception as e:
             print(f"Error performing ping: {e}")
-
 
 def main():
     monitor = PingMonitor()

@@ -1,5 +1,4 @@
 from pythonping import ping as python_ping
-import time
 
 
 class ICMPPing:
@@ -24,7 +23,7 @@ class ICMPPing:
         try:
             # Convert timeout from milliseconds to seconds
             timeout_sec = timeout / 1000.0
-            
+
             # Perform the ping
             result = python_ping(
                 self.host,
@@ -32,10 +31,10 @@ class ICMPPing:
                 timeout=timeout_sec,
                 verbose=False
             )
-            
+
             responses = []
             min_rtt = None
-            
+
             # Process results
             for response in result:
                 if response.success:
