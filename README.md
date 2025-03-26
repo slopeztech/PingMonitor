@@ -18,8 +18,8 @@ A Python-based monitoring tool that checks the availability of websites and serv
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/ping-monitor.git
-cd ping-monitor
+git clone https://github.com/slopeztech/PingMonitor.git
+cd PingMonitor
 ```
 
 2. Create and activate a virtual environment:
