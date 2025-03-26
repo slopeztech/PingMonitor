@@ -47,6 +47,7 @@ class PingMonitorDB:
         # Metadata
         timestamp = DateTimeField(default=datetime.now)  # When the ping was performed
         raw_output = TextField()  # Raw output from the ping command
+        hostname = CharField()  # The hostname of the machine performing the ping
 
         class Meta:
             indexes = (
@@ -73,7 +74,8 @@ class PingMonitorDB:
                     success=result.get('success', False),
                     response_time_ms=result.get('response_time_ms'),
                     error_message=result.get('error'),
-                    raw_output=result.get('output', '')
+                    raw_output=result.get('output', ''),
+                    hostname=result.get('hostname', 'unknown')
                 )
         except Exception as e:
             print(f"Error storing ping result: {e}")

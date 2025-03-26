@@ -4,9 +4,30 @@ import argparse
 import subprocess
 import sys
 import os
+import socket
+from typing import Optional
 
 
 class PingMonitor:
+    def __init__(self):
+        self.hostname = self._get_hostname()
+
+    def _get_hostname(self) -> str:
+        """Get hostname from config or system."""
+        try:
+            # Try to read from config file
+            config_path = os.path.join("config", "pingmonitor.conf")
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        if line.startswith("hostname="):
+                            return line.split("=", 1)[1].strip()
+        except Exception:
+            pass
+        
+        # If no config or error, use system hostname
+        return socket.gethostname()
+
     def run_script(self, script_name: str) -> None:
         script_path = os.path.join("scripts", script_name) + ".py"
         try:
@@ -109,17 +130,18 @@ class PingMonitor:
                         return
                     # Initialize database connection and save the result
                     db = PingMonitorDB(db_file)
+                    # Add hostname to result
+                    result["hostname"] = self.hostname
                     db.store_ping_result(site=domain, protocol=protocol, result=result)
                     # print(f"Result saved to SQLite database: {db_file}")
                     
-                    # Verificar si el ping falló y si hay reporteros configurados
+                    # Check if ping failed and if reporters are configured
                     if result["success"]:
-                        print("hola 1")
-                        # Buscar sección de reportero en el archivo de configuración
+                        # Look for reporter section in configuration file
                         reporter_section = False
                         reporter_config = {}
                         
-                        # Leer el archivo de configuración para encontrar la sección de reporter
+                        # Read configuration file to find reporter section
                         config_path = os.path.join("sites", f"{site}.conf")
                         try:
                             with open(config_path, 'r', encoding='utf-8') as f:
@@ -138,19 +160,25 @@ class PingMonitor:
                             if reporter_section and "type" in reporter_config:
                                 reporter_type = reporter_config["type"].lower()
                                 
-                                # Enviar notificación según el tipo de reportero
+                                # Send notification based on reporter type
                                 if reporter_type == "telegram":
                                     try:
                                         from reporters.telegram import TelegramReporter
                                         bot_token = reporter_config["bot_token"]
                                         chat_id = reporter_config["chat_id"]
                                         reporter = TelegramReporter(bot_token, chat_id)
-                                        message = f"⚠️ Error de ping detectado para {domain} usando {protocol}. Detalles: {result.get('error_message', 'Error desconocido')}"
+                                        message = (
+                                            f"⚠️ Ping Error Detected\n"
+                                            f"Host: {self.hostname}\n"
+                                            f"Site: {domain}\n"
+                                            f"Protocol: {protocol}\n"
+                                            f"Error: {result.get('error_message', 'Unknown error')}"
+                                        )
                                         reporter._send_message(message)
                                     except Exception as reporter_error:
-                                        print(f"Error al enviar notificación por Telegram: {reporter_error}")
+                                        print(f"Error sending Telegram notification: {reporter_error}")
                         except Exception as config_error:
-                            print(f"Error al leer la configuración del reportero: {config_error}")
+                            print(f"Error reading reporter configuration: {config_error}")
                 except Exception as db_error:
                     print(f"Error saving to database: {db_error}")
         except ImportError:
